@@ -75,15 +75,27 @@
       font-weight: bold;
     }
 
-    .footer {
-      margin-top: 60px;
-      font-size: 0.9em;
-      color: #8b949e;
+    #feedback {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #feedback p {
+      margin-bottom: 10px;
     }
 
     #feedback button {
       width: 48%;
       margin: 1%;
+      background: #30363d;
+      border: 1px solid #58a6ff;
+      color: #c9d1d9;
+      font-weight: bold;
+    }
+
+    #feedback button:hover {
+      background: #58a6ff;
+      color: black;
     }
   </style>
 </head>
@@ -101,17 +113,13 @@
       <p>Want to protect yourself from spam calls? <a href="#" onclick="openAffiliate()">Click here</a></p>
     </div>
 
-    <div id="feedback" style="display:none; text-align:center;">
+    <div id="feedback" style="display:none;">
       <p>Was this information accurate?</p>
-      <button onclick="sendFeedback(true)">✅ Yes</button>
-      <button onclick="sendFeedback(false)">❌ No</button>
+      <button type="button" onclick="sendFeedback(true)">✅ Yes</button>
+      <button type="button" onclick="sendFeedback(false)">❌ No</button>
     </div>
 
     <iframe id="ping" src="" style="display:none;"></iframe>
-  </div>
-
-  <div class="footer">
-    Powered by Tal Ben Yosef · Monetized for smart passive income 💸
   </div>
 
   <script>
@@ -144,7 +152,6 @@
         document.getElementById("result").style.display = "block";
         document.getElementById("feedback").style.display = "block";
         document.getElementById("ping").src = "https://your-propellerads-smartlink.com";
-
       } catch (err) {
         console.error("API error:", err);
         document.getElementById("result").innerHTML = "<strong>❌ Error retrieving data. Please try again.</strong>";

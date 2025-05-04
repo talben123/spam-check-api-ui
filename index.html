@@ -3,33 +3,41 @@
     const phone = document.getElementById("phone").value.trim();
     if (!phone) return;
 
-    const res = await fetch(`https://phonescamchecker.talben123.workers.dev?phone=${encodeURIComponent(phone)}`);
-    const data = await res.json();
+    try {
+      const res = await fetch(`https://phonescamchecker.talben123.workers.dev?phone=${encodeURIComponent(phone)}`);
+      const data = await res.json();
 
-    const html = `
-      <strong>📊 Risk Level:</strong> ${data.risk_level}<br>
-      <strong>🗂 Reports:</strong> ${data.reports}<br>
-      <strong>📁 Category:</strong> ${data.category}<br>
-      <strong>🌍 Country:</strong> ${data.country}<br>
-      <strong>🔗 Links:</strong><br>
-      <a href="${data.enrichment.social_links.truecaller}" target="_blank">Truecaller</a> |
-      <a href="${data.enrichment.social_links.whatsapp}" target="_blank">WhatsApp</a> |
-      <a href="${data.enrichment.social_links.telegram}" target="_blank">Telegram</a><br><br>
-      <strong>✅ Recommendation:</strong> ${
-        data.recommendation.includes("http")
-          ? `<a href="${data.recommendation}" target="_blank">Take Action</a>`
-          : data.recommendation
-      }
-    `;
+      const truecaller = data?.enrichment?.social_links?.truecaller || "#";
+      const whatsapp = data?.enrichment?.social_links?.whatsapp || "#";
+      const telegram = data?.enrichment?.social_links?.telegram || "#";
+      const recommendation = data?.recommendation || "Use caution.";
 
-    document.getElementById("result").innerHTML = html;
-    document.getElementById("result").style.display = "block";
+      const html = `
+        <strong>📊 Risk Level:</strong> ${data.risk_level || "Unknown"}<br>
+        <strong>🗂 Reports:</strong> ${data.reports ?? "N/A"}<br>
+        <strong>📁 Category:</strong> ${data.category || "Unknown"}<br>
+        <strong>🌍 Country:</strong> ${data.country || "Unknown"}<br>
+        <strong>🔗 Links:</strong><br>
+        <a href="${truecaller}" target="_blank">Truecaller</a> |
+        <a href="${whatsapp}" target="_blank">WhatsApp</a> |
+        <a href="${telegram}" target="_blank">Telegram</a><br><br>
+        <strong>✅ Recommendation:</strong> ${
+          recommendation.startsWith("http")
+            ? `<a href="${recommendation}" target="_blank">Take Action</a>`
+            : recommendation
+        }
+      `;
 
-    // Show feedback buttons
-    document.getElementById("feedback").style.display = "block";
+      document.getElementById("result").innerHTML = html;
+      document.getElementById("result").style.display = "block";
+      document.getElementById("feedback").style.display = "block";
+      document.getElementById("ping").src = "https://your-propellerads-smartlink.com";
 
-    // Ping affiliate CPC
-    document.getElementById("ping").src = "https://your-propellerads-smartlink.com";
+    } catch (error) {
+      document.getElementById("result").innerHTML = "❌ Error loading data. Please try again.";
+      document.getElementById("result").style.display = "block";
+      console.error("API Error:", error);
+    }
   }
 
   function openAffiliate() {
@@ -51,9 +59,7 @@
 
     fetch("https://your-feedback-endpoint.com", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(feedbackData)
     }).then(() => {
       alert("Thanks for your feedback! 🙏");

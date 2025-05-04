@@ -1,69 +1,181 @@
-<script>
-  async function checkPhone() {
-    const phone = document.getElementById("phone").value.trim();
-    if (!phone) return;
-
-    try {
-      const res = await fetch(`https://phonescamchecker.talben123.workers.dev?phone=${encodeURIComponent(phone)}`);
-      const data = await res.json();
-
-      const truecaller = data?.enrichment?.social_links?.truecaller || "#";
-      const whatsapp = data?.enrichment?.social_links?.whatsapp || "#";
-      const telegram = data?.enrichment?.social_links?.telegram || "#";
-      const recommendation = data?.recommendation || "Use caution.";
-
-      const html = `
-        <strong>📊 Risk Level:</strong> ${data.risk_level || "Unknown"}<br>
-        <strong>🗂 Reports:</strong> ${data.reports ?? "N/A"}<br>
-        <strong>📁 Category:</strong> ${data.category || "Unknown"}<br>
-        <strong>🌍 Country:</strong> ${data.country || "Unknown"}<br>
-        <strong>🔗 Links:</strong><br>
-        <a href="${truecaller}" target="_blank">Truecaller</a> |
-        <a href="${whatsapp}" target="_blank">WhatsApp</a> |
-        <a href="${telegram}" target="_blank">Telegram</a><br><br>
-        <strong>✅ Recommendation:</strong> ${
-          recommendation.startsWith("http")
-            ? `<a href="${recommendation}" target="_blank">Take Action</a>`
-            : recommendation
-        }
-      `;
-
-      document.getElementById("result").innerHTML = html;
-      document.getElementById("result").style.display = "block";
-      document.getElementById("feedback").style.display = "block";
-      document.getElementById("ping").src = "https://your-propellerads-smartlink.com";
-
-    } catch (error) {
-      document.getElementById("result").innerHTML = "❌ Error loading data. Please try again.";
-      document.getElementById("result").style.display = "block";
-      console.error("API Error:", error);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Phone Scam Detector</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
     }
-  }
 
-  function openAffiliate() {
-    const win = window.open("https://your-propellerads-smartlink.com", "_blank");
-    if (win) {
-      win.focus();
-    } else {
-      alert("Please allow popups to view protection tools.");
+    h1 {
+      font-size: 2.5em;
+      color: #58a6ff;
     }
-  }
 
-  function sendFeedback(isCorrect) {
-    const phone = document.getElementById("phone").value.trim();
-    const feedbackData = {
-      phone,
-      correct: isCorrect,
-      timestamp: new Date().toISOString()
-    };
+    .container {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 0 10px #000;
+    }
 
-    fetch("https://your-feedback-endpoint.com", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(feedbackData)
-    }).then(() => {
-      alert("Thanks for your feedback! 🙏");
-      document.getElementById("feedback").style.display = "none";
-    });
-  }
-</script>
+    input, button {
+      width: 100%;
+      padding: 15px;
+      font-size: 1em;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    input {
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+    }
+
+    button {
+      background: #238636;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #2ea043;
+    }
+
+    .result {
+      margin-top: 25px;
+      background: #0d1117;
+      border-left: 5px solid #58a6ff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .affiliate {
+      margin-top: 15px;
+    }
+
+    .affiliate a {
+      color: #58a6ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .footer {
+      margin-top: 60px;
+      font-size: 0.9em;
+      color: #8b949e;
+    }
+
+    #feedback button {
+      width: 48%;
+      margin: 1%;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📞 Phone Spam Detector</h1>
+
+  <div class="container">
+    <input type="text" id="phone" placeholder="Enter phone number e.g. +18772134602">
+    <button onclick="checkPhone()">Check Number</button>
+
+    <div id="result" class="result" style="display:none;"></div>
+
+    <div class="affiliate">
+      <p>Want to protect yourself from spam calls? <a href="#" onclick="openAffiliate()">Click here</a></p>
+    </div>
+
+    <div id="feedback" style="display:none; text-align:center;">
+      <p>Was this information accurate?</p>
+      <button onclick="sendFeedback(true)">✅ Yes</button>
+      <button onclick="sendFeedback(false)">❌ No</button>
+    </div>
+
+    <iframe id="ping" src="" style="display:none;"></iframe>
+  </div>
+
+  <div class="footer">
+    Powered by Tal Ben Yosef · Monetized for smart passive income 💸
+  </div>
+
+  <script>
+    async function checkPhone() {
+      const phone = document.getElementById("phone").value.trim();
+      if (!phone) return;
+
+      try {
+        const res = await fetch(`https://phonescamchecker.talben123.workers.dev?phone=${encodeURIComponent(phone)}`);
+        const data = await res.json();
+
+        const html = `
+          <strong>📊 Risk Level:</strong> ${data.risk_level || "Unknown"}<br>
+          <strong>🗂 Reports:</strong> ${data.reports ?? "N/A"}<br>
+          <strong>📁 Category:</strong> ${data.category || "Unknown"}<br>
+          <strong>🌍 Country:</strong> ${data.country || "Unknown"}<br>
+          <strong>🔗 Links:</strong><br>
+          ${data.enrichment?.social_links?.truecaller ? `<a href="${data.enrichment.social_links.truecaller}" target="_blank">Truecaller</a>` : ""}
+          ${data.enrichment?.social_links?.whatsapp ? ` | <a href="${data.enrichment.social_links.whatsapp}" target="_blank">WhatsApp</a>` : ""}
+          ${data.enrichment?.social_links?.telegram ? ` | <a href="${data.enrichment.social_links.telegram}" target="_blank">Telegram</a>` : ""}
+          <br><br>
+          <strong>✅ Recommendation:</strong> ${
+            (data.recommendation || "").startsWith("http")
+              ? `<a href="${data.recommendation}" target="_blank">Take Action</a>`
+              : (data.recommendation || "Use caution.")
+          }
+        `;
+
+        document.getElementById("result").innerHTML = html;
+        document.getElementById("result").style.display = "block";
+        document.getElementById("feedback").style.display = "block";
+        document.getElementById("ping").src = "https://your-propellerads-smartlink.com";
+
+      } catch (err) {
+        console.error("API error:", err);
+        document.getElementById("result").innerHTML = "<strong>❌ Error retrieving data. Please try again.</strong>";
+        document.getElementById("result").style.display = "block";
+      }
+    }
+
+    function openAffiliate() {
+      const win = window.open("https://your-propellerads-smartlink.com", "_blank");
+      if (win) win.focus();
+      else alert("Please enable popups.");
+    }
+
+    function sendFeedback(isCorrect) {
+      const phone = document.getElementById("phone").value.trim();
+      const feedbackData = {
+        phone,
+        correct: isCorrect,
+        timestamp: new Date().toISOString()
+      };
+
+      fetch("https://your-feedback-endpoint.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(feedbackData)
+      }).then(() => {
+        alert("Thanks for your feedback! 🙏");
+        document.getElementById("feedback").style.display = "none";
+      });
+    }
+  </script>
+
+</body>
+</html>

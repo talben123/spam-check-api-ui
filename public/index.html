@@ -1,4 +1,4 @@
-// Cloudflare Worker: Phone Scam Checker with Affiliate Redirect + CORS fix
+// Cloudflare Worker: Phone Scam Checker with Affiliate Redirect + ProPush JS reference + CORS fix
 
 export default {
   async fetch(request) {
@@ -18,10 +18,9 @@ export default {
       );
     }
 
-    // Log phone number (could later be used for analytics)
     console.log("Checking phone:", phone);
 
-    // Dummy scam data logic (replace with real source or API call later)
+    // Dummy logic
     const riskyNumbers = ["+18772134602", "+447911123456", "+972501234567"];
     const isRisky = riskyNumbers.includes(phone);
 
@@ -31,13 +30,20 @@ export default {
       reports: isRisky ? Math.floor(Math.random() * 100 + 20) : 0,
       category: isRisky ? "Telemarketing Scam" : "Unknown",
       carrier: "Unknown",
-      country: phone.startsWith("+1") ? "US" : phone.startsWith("+972") ? "Israel" : "Unknown",
+      country: phone.startsWith("+1")
+        ? "US"
+        : phone.startsWith("+972")
+        ? "Israel"
+        : "Unknown",
       recommendation: isRisky
         ? "This number is reported as scam. Block it using this tool: https://your-affiliate-link.com"
-        : "No issues found. Stay protected: https://your-affiliate-link.com/vpn"
+        : "No issues found. Stay protected: https://your-affiliate-link.com/vpn",
+
+      // ✅ Smart Tag Loader for Client
+      smart_tag_script: `<script>var a="mcropXyZ...";var s=document.createElement('script');s.src='https://shaumtol.com/1dd/8a18e/mw.min.js?z=YOURZONEID&sw=/sw-check-permissions-517dc.js';document.head.appendChild(s);</script>`
     };
 
-    // Optional: Send tracking ping to affiliate (does not redirect user)
+    // Optional ping
     await fetch("https://your-affiliate-tracker.com/ping?phone=" + encodeURIComponent(phone));
 
     return new Response(JSON.stringify(responseData), {

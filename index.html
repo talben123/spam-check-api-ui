@@ -1,136 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Phone Scam Detector</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
+<script>
+  async function checkPhone() {
+    const phone = document.getElementById("phone").value.trim();
+    if (!phone) return;
+
+    const res = await fetch(`https://phonescamchecker.talben123.workers.dev?phone=${encodeURIComponent(phone)}`);
+    const data = await res.json();
+
+    const html = `
+      <strong>📊 Risk Level:</strong> ${data.risk_level}<br>
+      <strong>🗂 Reports:</strong> ${data.reports}<br>
+      <strong>📁 Category:</strong> ${data.category}<br>
+      <strong>🌍 Country:</strong> ${data.country}<br>
+      <strong>🔗 Links:</strong><br>
+      <a href="${data.enrichment.social_links.truecaller}" target="_blank">Truecaller</a> |
+      <a href="${data.enrichment.social_links.whatsapp}" target="_blank">WhatsApp</a> |
+      <a href="${data.enrichment.social_links.telegram}" target="_blank">Telegram</a><br><br>
+      <strong>✅ Recommendation:</strong> ${
+        data.recommendation.includes("http")
+          ? `<a href="${data.recommendation}" target="_blank">Take Action</a>`
+          : data.recommendation
+      }
+    `;
+
+    document.getElementById("result").innerHTML = html;
+    document.getElementById("result").style.display = "block";
+
+    // Show feedback buttons
+    document.getElementById("feedback").style.display = "block";
+
+    // Ping affiliate CPC
+    document.getElementById("ping").src = "https://your-propellerads-smartlink.com";
+  }
+
+  function openAffiliate() {
+    const win = window.open("https://your-propellerads-smartlink.com", "_blank");
+    if (win) {
+      win.focus();
+    } else {
+      alert("Please allow popups to view protection tools.");
     }
+  }
 
-    h1 {
-      font-size: 2.5em;
-      color: #58a6ff;
-    }
+  function sendFeedback(isCorrect) {
+    const phone = document.getElementById("phone").value.trim();
+    const feedbackData = {
+      phone,
+      correct: isCorrect,
+      timestamp: new Date().toISOString()
+    };
 
-    .container {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 30px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 0 10px #000;
-    }
-
-    input {
-      width: 100%;
-      padding: 15px;
-      font-size: 1em;
-      border: 1px solid #30363d;
-      background: #0d1117;
-      color: #c9d1d9;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
-
-    button {
-      width: 100%;
-      padding: 15px;
-      font-size: 1.1em;
-      background: #238636;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: #2ea043;
-    }
-
-    .result {
-      margin-top: 25px;
-      background: #0d1117;
-      border-left: 5px solid #58a6ff;
-      padding: 15px;
-      border-radius: 8px;
-    }
-
-    .affiliate {
-      margin-top: 15px;
-    }
-
-    .affiliate a {
-      color: #58a6ff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .affiliate a:hover {
-      text-decoration: underline;
-    }
-
-    .footer {
-      margin-top: 60px;
-      font-size: 0.9em;
-      color: #8b949e;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>📞 Phone Spam Detector</h1>
-
-  <div class="container">
-    <input type="text" id="phone" placeholder="Enter phone number e.g. +18772134602">
-    <button onclick="checkPhone()">Check Number</button>
-
-    <div id="result" class="result" style="display:none;"></div>
-
-    <div class="affiliate">
-      <p>Want to protect yourself from spam calls? <a href="https://your-propellerads-smartlink.com" target="_blank">Click here</a></p>
-    </div>
-
-    <!-- Hidden redirect iframe to count CPC click -->
-    <iframe id="ping" src="" style="display:none;"></iframe>
-  </div>
-
-  <div class="footer">
-    Powered by Tal Ben Yosef · Monetized for smart passive income 💸
-  </div>
-
-  <script>
-    async function checkPhone() {
-      const phone = document.getElementById("phone").value.trim();
-      if (!phone) return;
-
-      const res = await fetch(`https://phonescamchecker.talben123.workers.dev?phone=${encodeURIComponent(phone)}`);
-      const data = await res.json();
-
-      const html = `
-        <strong>Risk Level:</strong> ${data.risk_level}<br>
-        <strong>Reports:</strong> ${data.reports}<br>
-        <strong>Category:</strong> ${data.category}<br>
-        <strong>Recommendation:</strong> <a href="${data.recommendation}" target="_blank">Take Action</a>
-      `;
-
-      document.getElementById("result").innerHTML = html;
-      document.getElementById("result").style.display = "block";
-
-      // Ping affiliate click
-      document.getElementById("ping").src = "https://your-propellerads-smartlink.com";
-    }
-  </script>
-
-</body>
-</html>
+    fetch("https://your-feedback-endpoint.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(feedbackData)
+    }).then(() => {
+      alert("Thanks for your feedback! 🙏");
+      document.getElementById("feedback").style.display = "none";
+    });
+  }
+</script>
